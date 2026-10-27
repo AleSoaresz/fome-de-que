@@ -1,55 +1,13 @@
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const nearBtn = document.getElementById('nearBtn');
-const surpriseBtn = document.getElementById('surpriseBtn');
 const loginBtn = document.getElementById('loginBtn');
 const menuBtn = document.getElementById('menuBtn');
- 
-searchBtn.addEventListener('click', () => {
-    const termo = searchInput.value.trim();
-    if (termo === "") {
-        alert("Digite o que você está com vontade de comer!");
-        searchInput.focus();
-        return;
-    }
-    alert(`Buscando por: "${termo}"...`);
-});
- 
-nearBtn.addEventListener('click', () => {
-    if (navigator.geolocation) {
-        alert("Solicitando sua localização...");
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                alert(`Localização obtida! Lat: ${position.coords.latitude.toFixed(2)}, Lng: ${position.coords.longitude.toFixed(2)}`);
-            },
-            () => { alert("Não foi possível obter sua localização."); }
-        );
-    } else {
-        alert("Geolocalização não suportada.");
-    }
-});
- 
-surpriseBtn.addEventListener('click', () => {
-    alert("🎲 Sorteando 5 opções incríveis...");
-});
- 
+
 loginBtn.addEventListener('click', () => {
     alert("Abrindo login com o Google...");
 });
- 
+
 menuBtn.addEventListener('click', () => {
     alert("Abrindo menu lateral / perfil...");
 });
-
-// Lugares de TESTE (inventados, só para treinar a busca)
-const lugares = [
-  { nome: "Taverna do Valhalla", descricao: "Bar com tema viking e cerveja artesanal.", tags: ["viking", "cerveja", "bar", "carne"], lat: -15.8010, lng: -47.8890 },
-  { nome: "Burger do Abacaxi", descricao: "Hambúrguer com abacaxi grelhado.", tags: ["hambúrguer", "abacaxi", "lanche"], lat: -15.7801, lng: -47.9292 },
-  { nome: "Pizzaria Forno Antigo", descricao: "Pizza de calabresa no forno a lenha.", tags: ["pizza", "calabresa", "italiana"], lat: -15.8350, lng: -47.9120 },
-  { nome: "Sushi da Esquina", descricao: "Rodízio de comida japonesa.", tags: ["sushi", "japonesa", "rodízio"], lat: -15.7650, lng: -47.8800 },
-  { nome: "Cantinho Vegano", descricao: "Pratos veganos e sucos naturais.", tags: ["vegano", "saudável", "suco"], lat: -15.8650, lng: -47.9400 },
-  { nome: "Churrascaria Fogo de Chão", descricao: "Carnes na brasa e buffet de saladas.", tags: ["churrasco", "carne", "buffet"], lat: -15.7200, lng: -47.9000 }
-];
 
 const campoBusca = document.getElementById("searchInput");
 const botaoBuscar = document.getElementById("searchBtn");
@@ -116,7 +74,7 @@ function buscar() {
     .map(function (item) { return item.lugar; });
 
   if (encontrados.length === 0) {
-    mostrarMensagem("Não achei nada com isso. Tente outra palavra.");
+    mostrarMensagem("Nada encontrado. Tente outro ingrediente ou prato. Ex.: pizza, calabresa, sushi, vegano");
   } else {
     mostrarLugares(encontrados);
   }
