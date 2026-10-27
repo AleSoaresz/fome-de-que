@@ -8,7 +8,7 @@ const menuBtn = document.getElementById('menuBtn');
 searchBtn.addEventListener('click', () => {
     const termo = searchInput.value.trim();
     if (termo === "") {
-        alert("Por favor, digite o que você está com vontade de comer!");
+        alert("Digite o que você está com vontade de comer!");
         searchInput.focus();
         return;
     }
@@ -43,12 +43,12 @@ menuBtn.addEventListener('click', () => {
 
 // Lugares de TESTE (inventados, só para treinar a busca)
 const lugares = [
-  { nome: "Taverna do Valhalla", descricao: "Bar com tema viking e cerveja artesanal.", tags: ["viking", "cerveja", "bar", "carne"] },
-  { nome: "Burger do Abacaxi", descricao: "Hambúrguer com abacaxi grelhado.", tags: ["hambúrguer", "abacaxi", "lanche"] },
-  { nome: "Pizzaria Forno Antigo", descricao: "Pizza de calabresa no forno a lenha.", tags: ["pizza", "calabresa", "italiana"] },
-  { nome: "Sushi da Esquina", descricao: "Rodízio de comida japonesa.", tags: ["sushi", "japonesa", "rodízio"] },
-  { nome: "Cantinho Vegano", descricao: "Pratos veganos e sucos naturais.", tags: ["vegano", "saudável", "suco"] },
-  { nome: "Churrascaria Fogo de Chão", descricao: "Carnes na brasa e buffet de saladas.", tags: ["churrasco", "carne", "buffet"] }
+  { nome: "Taverna do Valhalla", descricao: "Bar com tema viking e cerveja artesanal.", tags: ["viking", "cerveja", "bar", "carne"], lat: -15.8010, lng: -47.8890 },
+  { nome: "Burger do Abacaxi", descricao: "Hambúrguer com abacaxi grelhado.", tags: ["hambúrguer", "abacaxi", "lanche"], lat: -15.7801, lng: -47.9292 },
+  { nome: "Pizzaria Forno Antigo", descricao: "Pizza de calabresa no forno a lenha.", tags: ["pizza", "calabresa", "italiana"], lat: -15.8350, lng: -47.9120 },
+  { nome: "Sushi da Esquina", descricao: "Rodízio de comida japonesa.", tags: ["sushi", "japonesa", "rodízio"], lat: -15.7650, lng: -47.8800 },
+  { nome: "Cantinho Vegano", descricao: "Pratos veganos e sucos naturais.", tags: ["vegano", "saudável", "suco"], lat: -15.8650, lng: -47.9400 },
+  { nome: "Churrascaria Fogo de Chão", descricao: "Carnes na brasa e buffet de saladas.", tags: ["churrasco", "carne", "buffet"], lat: -15.7200, lng: -47.9000 }
 ];
 
 const campoBusca = document.getElementById("searchInput");
@@ -75,9 +75,16 @@ function mostrarLugares(lista) {
   lista.forEach(function (lugar) {
     const cartao = document.createElement("div");
     cartao.className = "place-card";
+
+    let distanciaHtml = "";
+    if (lugar.distancia !== undefined) {
+      distanciaHtml = "<p>📍 a " + lugar.distancia.toFixed(1).replace(".", ",") + " km de você</p>";
+    }
+
     cartao.innerHTML =
       "<h3>" + lugar.nome + "</h3>" +
       "<p>" + lugar.descricao + "</p>" +
+      distanciaHtml +
       lugar.tags.map(function (t) { return '<span class="place-tag">' + t + "</span>"; }).join("");
     areaResultados.appendChild(cartao);
   });
@@ -131,3 +138,47 @@ function surpreender() {
 }
 
 botaoSurpresa.addEventListener("click", surpreender);
+
+// Botão "O que tem por perto?": ordena os lugares do mais perto ao mais longe
+const botaoPerto = document.getElementById("nearBtn");
+
+// Fórmula que calcula a distância (em km) entre dois pontos da Terra
+function calcularDistanciaKm(lat1, lng1, lat2, lng2) {
+  const raioTerra = 6371;
+  const paraRadianos = function (graus) { return graus * Math.PI / 180; };
+  const difLat = paraRadianos(lat2 - lat1);
+  const difLng = paraRadianos(lng2 - lng1);
+  const a = Math.sin(difLat / 2) * Math.sin(difLat / 2) +
+            Math.cos(paraRadianos(lat1)) * Math.cos(paraRadianos(lat2)) *
+            Math.sin(difLng / 2) * Math.sin(difLng / 2);
+  return raioTerra * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function buscarPerto() {
+  if (!navigator.geolocation) {
+    mostrarMensagem("Seu navegador não consegue descobrir a localização.");
+    return;
+  }
+  mostrarMensagem("Descobrindo onde você está...");
+
+  navigator.geolocation.getCurrentPosition(
+    function (posicao) {
+      const minhaLat = posicao.coords.latitude;
+      const minhaLng = posicao.coords.longitude;
+
+      const ordenados = lugares
+        .map(function (lugar) {
+          const km = calcularDistanciaKm(minhaLat, minhaLng, lugar.lat, lugar.lng);
+          return Object.assign({}, lugar, { distancia: km });
+        })
+        .sort(function (a, b) { return a.distancia - b.distancia; });
+
+      mostrarLugares(ordenados);
+    },
+    function () {
+      mostrarMensagem("Não consegui pegar sua localização. Confira se você clicou em Permitir.");
+    }
+  );
+}
+
+botaoPerto.addEventListener("click", buscarPerto);
