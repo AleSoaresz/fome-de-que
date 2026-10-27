@@ -119,3 +119,15 @@ botaoBuscar.addEventListener("click", buscar);
 campoBusca.addEventListener("keydown", function (evento) {
   if (evento.key === "Enter") buscar();
 });
+
+// Botão "Me surpreenda": sorteia até 5 lugares da lista
+const botaoSurpresa = document.getElementById("surpriseBtn");
+
+function surpreender() {
+  const embaralhados = lugares.slice().sort(function () {
+    return Math.random() - 0.5;
+  });
+  mostrarLugares(embaralhados.slice(0, 5));
+}
+
+botaoSurpresa.addEventListener("click", surpreender);
