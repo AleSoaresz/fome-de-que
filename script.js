@@ -48,6 +48,21 @@ function mostrarLugares(lista) {
   });
 }
 
+// Quando a busca não acha nada: avisa e sugere 3 lugares da lista
+function mostrarSemResultado() {
+  const sugestoes = lugares
+    .slice()
+    .sort(function () { return Math.random() - 0.5; })
+    .slice(0, 3);
+
+  mostrarLugares(sugestoes);
+
+  const aviso = document.createElement("p");
+  aviso.className = "results-msg";
+  aviso.textContent = "Nada encontrado. Tente outro ingrediente ou prato. Enquanto isso, que tal esses lugares?";  
+  areaResultados.insertBefore (aviso, areaResultados.firstChild);
+}
+
 // Faz a busca
 function buscar() {
   const textoDigitado = limpar(campoBusca.value.trim());
@@ -74,7 +89,7 @@ function buscar() {
     .map(function (item) { return item.lugar; });
 
   if (encontrados.length === 0) {
-    mostrarMensagem("Nada encontrado. Tente outro ingrediente ou prato. Ex.: pizza, calabresa, sushi, vegano");
+    mostrarSemResultado();  
   } else {
     mostrarLugares(encontrados);
   }
