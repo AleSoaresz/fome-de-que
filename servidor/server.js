@@ -1,6 +1,8 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
-const PORTA = 3000;
+const PORTA = process.env.PORTA || 3000;
 const lugares = require("./lugares");
 
 app.get("/", function (req, res) {
