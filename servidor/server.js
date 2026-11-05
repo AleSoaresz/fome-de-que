@@ -1,9 +1,14 @@
 const express = require("express");
 const app = express();
 const PORTA = 3000;
+const lugares = require("./lugares");
 
 app.get("/", function (req, res) {
   res.send("Servidor do Fome de Quê? funcionando!");
+});
+
+app.get("/api/lugares", function (req, res) {
+  res.json(lugares);
 });
 
 app.listen(PORTA, function () {
