@@ -155,3 +155,17 @@ function buscarPerto() {
 }
 
 botaoPerto.addEventListener("click", buscarPerto);
+
+let lugares = [];
+const URL_SERVIDOR = "http://localhost:3000";
+
+async function carregarLugares() {
+  try {
+    const resposta = await fetch(URL_SERVIDOR + "/api/lugares");
+    lugares = await resposta.json();
+  } catch (erro) {
+    mostrarMensagem("Não consegui falar com o servidor. Ele está ligado?");
+  }
+}
+
+carregarLugares();
