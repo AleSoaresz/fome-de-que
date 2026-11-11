@@ -13,11 +13,6 @@ const campoBusca = document.getElementById("searchInput");
 const botaoBuscar = document.getElementById("searchBtn");
 const areaResultados = document.getElementById("results");
 
-// Tira acentos e deixa tudo minúsculo, para "hamburguer" achar "hambúrguer"
-function limpar(texto) {
-  return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
-
 // Mostra uma mensagem simples na área de resultados
 function mostrarMensagem(texto) {
   areaResultados.innerHTML = "";
@@ -63,35 +58,32 @@ function mostrarSemResultado() {
   areaResultados.insertBefore (aviso, areaResultados.firstChild);
 }
 
-// Faz a busca
-function buscar() {
-  const textoDigitado = limpar(campoBusca.value.trim());
-  if (textoDigitado === "") {
+// Faz a busca: pergunta ao servidor
+async function buscar() {
+  const texto = campoBusca.value.trim();
+  if (texto === "") {
     mostrarMensagem("Digite o que você quer comer. Ex.: hambúrguer com abacaxi");
     return;
   }
 
-  // Palavras pequenas e comuns não ajudam na busca
-  const ignorar = ["com", "de", "do", "da", "e", "em", "para", "por"];
-  const palavras = textoDigitado.split(" ").filter(function (p) {
-    return p.length > 2 && !ignorar.includes(p);
-  });
+  mostrarMensagem("Buscando...");
 
-  // Conta quantas palavras combinam com cada lugar
-  const encontrados = lugares
-    .map(function (lugar) {
-      const textoDoLugar = limpar(lugar.nome + " " + lugar.descricao + " " + lugar.tags.join(" "));
-      const pontos = palavras.filter(function (p) { return textoDoLugar.includes(p); }).length;
-      return { lugar: lugar, pontos: pontos };
-    })
-    .filter(function (item) { return item.pontos > 0; })
-    .sort(function (a, b) { return b.pontos - a.pontos; })
-    .map(function (item) { return item.lugar; });
+  try {
+    const resposta = await fetch(URL_SERVIDOR + "/api/busca?q=" + encodeURIComponent(texto));
+    const dados = await resposta.json();
 
-  if (encontrados.length === 0) {
-    mostrarSemResultado();  
-  } else {
-    mostrarLugares(encontrados);
+    if (!resposta.ok) {
+      mostrarMensagem(dados.erro || "Algo deu errado. Tente de novo.");
+      return;
+    }
+
+    if (dados.length === 0) {
+      mostrarSemResultado();
+    } else {
+      mostrarLugares(dados);
+    }
+  } catch (erro) {
+    mostrarMensagem("Não consegui falar com o servidor. Ele está ligado?");
   }
 }
 
